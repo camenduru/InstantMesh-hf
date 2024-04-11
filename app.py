@@ -61,7 +61,7 @@ def images_to_video(images, output_path, fps=30):
 # Configuration.
 ###############################################################################
 
-config_path = 'configs/instant-mesh-large-eval.yaml'
+config_path = 'configs/instant-mesh-large.yaml'
 config = OmegaConf.load(config_path)
 config_name = os.path.basename(config_path).replace('.yaml', '')
 model_config = config.model_config
