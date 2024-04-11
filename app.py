@@ -271,16 +271,16 @@ with gr.Blocks() as demo:
                     label="Input Image",
                     image_mode="RGBA",
                     sources="upload",
-                    width=256,
-                    height=256,
+                    #width=256,
+                    #height=256,
                     type="pil",
                     elem_id="content_image",
                 )
                 processed_image = gr.Image(
                     label="Processed Image", 
                     image_mode="RGBA", 
-                    width=256,
-                    height=256,
+                    #width=256,
+                    #height=256,
                     type="pil", 
                     interactive=False
                 )
