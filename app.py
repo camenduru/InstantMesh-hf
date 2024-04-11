@@ -123,7 +123,6 @@ def preprocess(input_image, do_remove_background):
     return input_image
 
 
-@spaces.GPU
 def generate_mvs(input_image, sample_steps, sample_seed):
 
     seed_everything(sample_seed)
@@ -141,8 +140,6 @@ def generate_mvs(input_image, sample_steps, sample_seed):
 
     return z123_image, show_image
 
-
-@spaces.GPU
 def make_mesh(mesh_fpath, planes):
 
     mesh_basename = os.path.basename(mesh_fpath).split('.')[0]
@@ -168,9 +165,10 @@ def make_mesh(mesh_fpath, planes):
 
     return mesh_fpath
 
-
 @spaces.GPU
-def make3d(images):
+def make3d(input_image, sample_steps, sample_seed):
+
+    images, show_images = generate_mvs(input_image, sample_steps, sample_seed)
 
     images = np.asarray(images, dtype=np.float32) / 255.0
     images = torch.from_numpy(images).permute(2, 0, 1).contiguous().float()     # (3, 960, 640)
@@ -223,7 +221,7 @@ def make3d(images):
 
     mesh_fpath = make_mesh(mesh_fpath, planes)
 
-    return video_fpath, mesh_fpath
+    return video_fpath, mesh_fpath, show_images
 
 
 _HEADER_ = '''
@@ -298,7 +296,7 @@ with gr.Blocks() as demo:
                     ],
                     inputs=[input_image],
                     label="Examples",
-                    examples_per_page=20
+                    examples_per_page=15
                 )
 
         with gr.Column():
@@ -330,20 +328,14 @@ with gr.Blocks() as demo:
     gr.Markdown(_LINKS_)
     gr.Markdown(_CITE_)
 
-    mv_images = gr.State()
-
     submit.click(fn=check_input_image, inputs=[input_image]).success(
         fn=preprocess,
         inputs=[input_image, do_remove_background],
         outputs=[processed_image],
     ).success(
-        fn=generate_mvs,
-        inputs=[processed_image, sample_steps, sample_seed],
-        outputs=[mv_images, mv_show_images],
-    ).success(
         fn=make3d,
-        inputs=[mv_images],
-        outputs=[output_video, output_model_obj]
+        inputs=[processed_image, sample_steps, sample_seed],
+        outputs=[output_video, output_model_obj, mv_show_images]
     )
 
 demo.launch()
