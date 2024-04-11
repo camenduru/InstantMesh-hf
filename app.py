@@ -178,7 +178,7 @@ def make3d(images):
     images = torch.from_numpy(images).permute(2, 0, 1).contiguous().float()     # (3, 960, 640)
     images = rearrange(images, 'c (n h) (m w) -> (n m) c h w', n=3, m=2)        # (6, 3, 320, 320)
 
-    input_cameras = get_zero123plus_input_cameras(batch_size=1, radius=2.5).to(device)
+    input_cameras = get_zero123plus_input_cameras(batch_size=1, radius=4.0).to(device)
     render_cameras = get_render_cameras(batch_size=1, radius=2.5, is_flexicubes=IS_FLEXICUBES).to(device)
 
     images = images.unsqueeze(0).to(device)
