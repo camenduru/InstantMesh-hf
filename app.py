@@ -147,6 +147,7 @@ def preprocess(input_image, do_remove_background):
     return input_image
 
 
+@spaces.GPU
 def generate_mvs(input_image, sample_steps, sample_seed):
 
     seed_everything(sample_seed)
@@ -166,21 +167,12 @@ def generate_mvs(input_image, sample_steps, sample_seed):
 
 
 @spaces.GPU
-def make3d(input_image, sample_steps, sample_seed):
-
-    cuda_path = find_cuda()
-
-    if cuda_path:
-        print(f"CUDA installation found at: {cuda_path}")
-    else:
-        print("CUDA installation not found")
+def make3d(images):
 
     global model
     if IS_FLEXICUBES:
         model.init_flexicubes_geometry(device, use_renderer=False)
     model = model.eval()
-
-    images, show_images = generate_mvs(input_image, sample_steps, sample_seed)
 
     images = np.asarray(images, dtype=np.float32) / 255.0
     images = torch.from_numpy(images).permute(2, 0, 1).contiguous().float()     # (3, 960, 640)
@@ -246,7 +238,7 @@ def make3d(input_image, sample_steps, sample_seed):
         
         print(f"Mesh saved to {mesh_fpath}")
 
-    return mesh_fpath, show_images
+    return mesh_fpath
 
 
 _HEADER_ = '''
@@ -349,14 +341,21 @@ with gr.Blocks() as demo:
     gr.Markdown(_LINKS_)
     gr.Markdown(_CITE_)
 
+    mv_images = gr.State()
+
     submit.click(fn=check_input_image, inputs=[input_image]).success(
         fn=preprocess,
         inputs=[input_image, do_remove_background],
         outputs=[processed_image],
     ).success(
-        fn=make3d,
+        fn=generate_mvs,
         inputs=[processed_image, sample_steps, sample_seed],
-        outputs=[output_model_obj, mv_show_images]
+        outputs=[mv_images, mv_show_images]
+        
+    ).success(
+        fn=make3d,
+        inputs=[mv_images],
+        outputs=[output_model_obj]
     )
 
 demo.launch()
