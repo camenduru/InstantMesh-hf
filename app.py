@@ -101,9 +101,6 @@ state_dict = {k[14:]: v for k, v in state_dict.items() if k.startswith('lrm_gene
 model.load_state_dict(state_dict, strict=True)
 
 model = model.to(device)
-if IS_FLEXICUBES:
-    model.init_flexicubes_geometry(device)
-model = model.eval()
 
 print('Loading Finished!')
 
@@ -168,6 +165,11 @@ def make_mesh(mesh_fpath, planes):
 
 @spaces.GPU
 def make3d(input_image, sample_steps, sample_seed):
+
+    global model
+    if IS_FLEXICUBES:
+        model.init_flexicubes_geometry(device)
+    model = model.eval()
 
     images, show_images = generate_mvs(input_image, sample_steps, sample_seed)
 
