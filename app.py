@@ -192,6 +192,13 @@ def make_mesh(mesh_fpath, planes):
 @spaces.GPU
 def make3d(input_image, sample_steps, sample_seed):
 
+    cuda_path = find_cuda()
+
+    if cuda_path:
+        print(f"CUDA installation found at: {cuda_path}")
+    else:
+        print("CUDA installation not found")
+
     global model
     if IS_FLEXICUBES:
         model.init_flexicubes_geometry(device)
