@@ -316,7 +316,7 @@ with gr.Blocks() as demo:
                     inputs=[input_image],
                     label="Examples",
                     cache_examples=False,
-                    examples_per_page=15
+                    examples_per_page=12
                 )
 
         with gr.Column():
