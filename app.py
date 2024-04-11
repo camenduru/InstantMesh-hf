@@ -24,6 +24,8 @@ import tempfile
 from functools import partial
 
 from huggingface_hub import hf_hub_download
+
+import gradio as gr
 import spaces
 
 
@@ -223,8 +225,6 @@ def make3d(images):
 
     return video_fpath, mesh_fpath
 
-
-import gradio as gr
 
 _HEADER_ = '''
 <h2><b>Official 🤗 Gradio demo for</b>
