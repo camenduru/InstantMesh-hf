@@ -68,6 +68,8 @@ def sample_from_planes(plane_axes, plane_features, coordinates, mode='bilinear',
 
     coordinates = (2/box_warp) * coordinates # add specific box bounds
 
+    print('plane_axes', plane_axes.dtype, 'plane_features', plane_features.dtype, 'coordinates', coordinates.dtype)
+
     projected_coordinates = project_onto_planes(plane_axes, coordinates).unsqueeze(1)
     output_features = torch.nn.functional.grid_sample(
         plane_features, 

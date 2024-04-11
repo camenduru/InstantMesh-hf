@@ -167,30 +167,6 @@ def generate_mvs(input_image, sample_steps, sample_seed):
 
     return z123_image, show_image
 
-def make_mesh(mesh_fpath, planes):
-
-    mesh_basename = os.path.basename(mesh_fpath).split('.')[0]
-    mesh_dirname = os.path.dirname(mesh_fpath)
-    mesh_vis_fpath = os.path.join(mesh_dirname, f"{mesh_basename}.glb")
-        
-    with torch.no_grad():
-
-        # get mesh
-        mesh_out = model.extract_mesh(
-            planes,
-            use_texture_map=False,
-            **infer_config,
-        )
-
-        vertices, faces, vertex_colors = mesh_out
-        vertices = vertices[:, [0, 2, 1]]
-        vertices[:, -1] *= -1
-
-        save_obj(vertices, faces, vertex_colors, mesh_fpath)
-        
-        print(f"Mesh saved to {mesh_fpath}")
-
-    return mesh_fpath
 
 @spaces.GPU
 def make3d(input_image, sample_steps, sample_seed):
@@ -253,7 +229,20 @@ def make3d(input_image, sample_steps, sample_seed):
 
         # print(f"Video saved to {video_fpath}")
 
-    mesh_fpath = make_mesh(mesh_fpath, planes)
+        # get mesh
+        mesh_out = model.extract_mesh(
+            planes,
+            use_texture_map=False,
+            **infer_config,
+        )
+
+        vertices, faces, vertex_colors = mesh_out
+        vertices = vertices[:, [0, 2, 1]]
+        vertices[:, -1] *= -1
+
+        save_obj(vertices, faces, vertex_colors, mesh_fpath)
+        
+        print(f"Mesh saved to {mesh_fpath}")
 
     return mesh_fpath, show_images
 
