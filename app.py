@@ -64,6 +64,32 @@ def images_to_video(images, output_path, fps=30):
 # Configuration.
 ###############################################################################
 
+import shutil
+
+def find_cuda():
+    # Check if CUDA_HOME or CUDA_PATH environment variables are set
+    cuda_home = os.environ.get('CUDA_HOME') or os.environ.get('CUDA_PATH')
+
+    if cuda_home and os.path.exists(cuda_home):
+        return cuda_home
+
+    # Search for the nvcc executable in the system's PATH
+    nvcc_path = shutil.which('nvcc')
+
+    if nvcc_path:
+        # Remove the 'bin/nvcc' part to get the CUDA installation path
+        cuda_path = os.path.dirname(os.path.dirname(nvcc_path))
+        return cuda_path
+
+    return None
+
+cuda_path = find_cuda()
+
+if cuda_path:
+    print(f"CUDA installation found at: {cuda_path}")
+else:
+    print("CUDA installation not found")
+
 config_path = 'configs/instant-mesh-large.yaml'
 config = OmegaConf.load(config_path)
 config_name = os.path.basename(config_path).replace('.yaml', '')
