@@ -127,9 +127,6 @@ state_dict = {k[14:]: v for k, v in state_dict.items() if k.startswith('lrm_gene
 model.load_state_dict(state_dict, strict=True)
 
 model = model.to(device)
-if IS_FLEXICUBES:
-    model.init_flexicubes_geometry(device, use_renderer=False)
-model = model.eval()
 
 print('Loading Finished!')
 
@@ -177,6 +174,11 @@ def make3d(input_image, sample_steps, sample_seed):
         print(f"CUDA installation found at: {cuda_path}")
     else:
         print("CUDA installation not found")
+
+    global model
+    if IS_FLEXICUBES:
+        model.init_flexicubes_geometry(device, use_renderer=False)
+    model = model.eval()
 
     images, show_images = generate_mvs(input_image, sample_steps, sample_seed)
 
