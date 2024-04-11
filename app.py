@@ -127,6 +127,9 @@ state_dict = {k[14:]: v for k, v in state_dict.items() if k.startswith('lrm_gene
 model.load_state_dict(state_dict, strict=True)
 
 model = model.to(device)
+if IS_FLEXICUBES:
+    model.init_flexicubes_geometry(device, use_renderer=False)
+model = model.eval()
 
 print('Loading Finished!')
 
@@ -199,11 +202,6 @@ def make3d(input_image, sample_steps, sample_seed):
     else:
         print("CUDA installation not found")
 
-    global model
-    if IS_FLEXICUBES:
-        model.init_flexicubes_geometry(device)
-    model = model.eval()
-
     images, show_images = generate_mvs(input_image, sample_steps, sample_seed)
 
     images = np.asarray(images, dtype=np.float32) / 255.0
@@ -226,46 +224,42 @@ def make3d(input_image, sample_steps, sample_seed):
         # get triplane
         planes = model.forward_planes(images, input_cameras)
 
-        # get video
-        chunk_size = 20 if IS_FLEXICUBES else 1
-        render_size = 384
+        # # get video
+        # chunk_size = 20 if IS_FLEXICUBES else 1
+        # render_size = 384
         
-        frames = []
-        for i in tqdm(range(0, render_cameras.shape[1], chunk_size)):
-            if IS_FLEXICUBES:
-                frame = model.forward_geometry(
-                    planes,
-                    render_cameras[:, i:i+chunk_size],
-                    render_size=render_size,
-                )['img']
-            else:
-                frame = model.synthesizer(
-                    planes,
-                    cameras=render_cameras[:, i:i+chunk_size],
-                    render_size=render_size,
-                )['images_rgb']
-            frames.append(frame)
-        frames = torch.cat(frames, dim=1)
+        # frames = []
+        # for i in tqdm(range(0, render_cameras.shape[1], chunk_size)):
+        #     if IS_FLEXICUBES:
+        #         frame = model.forward_geometry(
+        #             planes,
+        #             render_cameras[:, i:i+chunk_size],
+        #             render_size=render_size,
+        #         )['img']
+        #     else:
+        #         frame = model.synthesizer(
+        #             planes,
+        #             cameras=render_cameras[:, i:i+chunk_size],
+        #             render_size=render_size,
+        #         )['images_rgb']
+        #     frames.append(frame)
+        # frames = torch.cat(frames, dim=1)
 
-        images_to_video(
-            frames[0],
-            video_fpath,
-            fps=30,
-        )
+        # images_to_video(
+        #     frames[0],
+        #     video_fpath,
+        #     fps=30,
+        # )
 
-        print(f"Video saved to {video_fpath}")
+        # print(f"Video saved to {video_fpath}")
 
     mesh_fpath = make_mesh(mesh_fpath, planes)
 
-    return video_fpath, mesh_fpath, show_images
+    return mesh_fpath, show_images
 
 
 _HEADER_ = '''
-<h2><b>Official 🤗 Gradio demo for</b>
-<a href='https://github.com/TencentARC/InstantMesh' target='_blank'>
-<b>InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models</b>
-</a>.
-</h2>
+<h2><b>Official 🤗 Gradio Demo</b></h2><h2><a href='https://github.com/TencentARC/InstantMesh' target='_blank'><b>InstantMesh: Efficient 3D Mesh Generation from a Single Image with Sparse-view Large Reconstruction Models</b></a></h2>
 '''
 
 _LINKS_ = '''
@@ -348,13 +342,13 @@ with gr.Blocks() as demo:
                         interactive=False
                     )
 
-                with gr.Column():
-                    output_video = gr.Video(
-                        label="video", format="mp4",
-                        width=379,
-                        autoplay=True,
-                        interactive=False
-                    )
+                # with gr.Column():
+                #     output_video = gr.Video(
+                #         label="video", format="mp4",
+                #         width=379,
+                #         autoplay=True,
+                #         interactive=False
+                #     )
 
             with gr.Row():
                 output_model_obj = gr.Model3D(
@@ -371,7 +365,7 @@ with gr.Blocks() as demo:
     ).success(
         fn=make3d,
         inputs=[processed_image, sample_steps, sample_seed],
-        outputs=[output_video, output_model_obj, mv_show_images]
+        outputs=[output_model_obj, mv_show_images]
     )
 
 demo.launch()

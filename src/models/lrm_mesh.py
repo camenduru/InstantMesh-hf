@@ -74,9 +74,12 @@ class InstantMesh(nn.Module):
             samples_per_ray=rendering_samples_per_ray,
         )
 
-    def init_flexicubes_geometry(self, device, fovy=50.0):
+    def init_flexicubes_geometry(self, device, fovy=50.0, use_renderer=True):
         camera = PerspectiveCamera(fovy=fovy, device=device)
-        renderer = NeuralRender(device, camera_model=camera)
+        if use_renderer:
+            renderer = NeuralRender(device, camera_model=camera)
+        else:
+            renderer = None
         self.geometry = FlexiCubesGeometry(
             grid_res=self.grid_res, 
             scale=self.grid_scale, 
