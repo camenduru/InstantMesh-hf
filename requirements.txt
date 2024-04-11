@@ -1,0 +1,21 @@
+pytorch-lightning==2.1.2
+einops
+omegaconf
+deepspeed
+torchmetrics
+webdataset
+accelerate
+tensorboard
+PyMCubes
+trimesh
+rembg
+transformers==4.34.1
+diffusers==0.19.3
+bitsandbytes
+imageio[ffmpeg]
+xatlas
+plyfile
+xformers==0.0.22.post7
+git+https://github.com/NVlabs/nvdiffrast/
+torch-scatter -f https://data.pyg.org/whl/torch-2.1.0+cu121.html
+huggingface-hub
