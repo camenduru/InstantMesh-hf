@@ -326,7 +326,6 @@ with gr.Blocks() as demo:
             with gr.Row():
                 output_model_obj = gr.Model3D(
                     label="Output Model (OBJ Format)",
-                    width=768,
                     interactive=False,
                 )
     gr.Markdown(_LINKS_)
