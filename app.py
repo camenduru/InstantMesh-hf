@@ -1,3 +1,5 @@
+import spaces
+
 import os
 import imageio
 import numpy as np
@@ -26,7 +28,6 @@ from functools import partial
 from huggingface_hub import hf_hub_download
 
 import gradio as gr
-import spaces
 
 
 def get_render_cameras(batch_size=1, M=120, radius=2.5, elevation=10.0, is_flexicubes=False):
